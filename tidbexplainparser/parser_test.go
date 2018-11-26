@@ -56,40 +56,57 @@ func TestGetRowLayer(t *testing.T) {
 
 func TestHandleNodeForNextLayer(t *testing.T) {
 	// 下一层测试
-	var root Node = Node{name: "root", layer: 0}
-	var new Node = Node{name: "new", layer: 1}
+	var root Node = Node{Name: "root", Layer: 0}
+	var new Node = Node{Name: "new", Layer: 1}
 	var conx context = context{root: &root, current: &root, layer: 0}
 	conx.HandleNode(&new)
-	Assert(t, "new", root.nodes[0].name)
-	Assert(t, "root", root.nodes[0].parent.name)
+	Assert(t, "new", root.Nodes[0].Name)
+	Assert(t, "root", root.Nodes[0].parent.Name)
 }
 
 func TestHandleNodeForSameLayer(t *testing.T) {
-	var root Node = Node{name: "root", layer: 0}
-	var node1 Node = Node{name: "node1", layer: 1}
-	var node2 Node = Node{name: "node2", layer: 2}
+	var root Node = Node{Name: "root", Layer: 0}
+	var node1 Node = Node{Name: "node1", Layer: 1}
+	var node2 Node = Node{Name: "node2", Layer: 2}
 	var conx context = context{root: &root, current: &root, layer: 0}
 	conx.HandleNode(&node1)
 	conx.HandleNode(&node2)
-	var new Node = Node{name: "new", layer: 1}
+	var new Node = Node{Name: "new", Layer: 1}
 	conx.HandleNode(&new)
-	Assert(t, "new", root.nodes[1].name)
-	Assert(t, "root", root.nodes[1].parent.name)
+	Assert(t, "new", root.Nodes[1].Name)
+	Assert(t, "root", root.Nodes[1].parent.Name)
 }
 
 func TestHandleNodeForPreLayer(t *testing.T) {
-	var root Node = Node{name: "root", layer: 0}
-	var node1 Node = Node{name: "node1", layer: 1}
-	var node2 Node = Node{name: "node2", layer: 2}
-	var node3 Node = Node{name: "node3", layer: 3}
+	var root Node = Node{Name: "root", Layer: 0}
+	var node1 Node = Node{Name: "node1", Layer: 1}
+	var node2 Node = Node{Name: "node2", Layer: 2}
+	var node3 Node = Node{Name: "node3", Layer: 3}
 	var conx context = context{root: &root, current: &root, layer: 0}
 	conx.HandleNode(&node1)
 	conx.HandleNode(&node2)
 	conx.HandleNode(&node3)
-	var new Node = Node{name: "new", layer: 1}
+	var new Node = Node{Name: "new", Layer: 1}
 	conx.HandleNode(&new)
-	Assert(t, "new", root.nodes[1].name)
-	Assert(t, "node1", root.nodes[0].name)
-	Assert(t, "root", root.nodes[1].parent.name)
+	Assert(t, "new", root.Nodes[1].Name)
+	Assert(t, "node1", root.Nodes[0].Name)
+	Assert(t, "root", root.Nodes[1].parent.Name)
+}
 
+func TestHandleNodeForPreLayer2(t *testing.T) {
+	var root Node = Node{Name: "root", Layer: 0}
+	var node1 Node = Node{Name: "node1", Layer: 1}
+	var node2 Node = Node{Name: "node2", Layer: 2}
+	var node3 Node = Node{Name: "node3", Layer: 1}
+	var conx context = context{root: &root, current: &root, layer: 0}
+	conx.HandleNode(&node1)
+	conx.HandleNode(&node2)
+	conx.HandleNode(&node3)
+
+	var new Node = Node{Name: "new", Layer: 2}
+	conx.HandleNode(&new)
+	Assert(t, "node1", root.Nodes[0].Name)
+	Assert(t, "node2", root.Nodes[0].Nodes[0].Name)
+	Assert(t, "node3", root.Nodes[1].Name)
+	Assert(t, "new", root.Nodes[1].Nodes[0].Name)
 }

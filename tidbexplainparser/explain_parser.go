@@ -2,6 +2,7 @@ package tidbexplainparser
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -51,17 +52,31 @@ var conx context = context{}
 
 func ExplainReader(t []QueryResult) {
 
+	var conx context = context{}
 	for _, val := range t {
 		layer := GetRowLayer(val.id)
-		n := Node{name: val.id, layer: layer}
-		conx.HandleNode(&n)
+		n := Node{Name: val.id, Layer: layer}
+		if layer == 0 {
+			conx.layer = 0
+			n.parent = nil
+			conx.root = &n
+			conx.current = conx.root
+		} else {
+			conx.HandleNode(&n)
+		}
 	}
+
+	result, err := json.Marshal(&conx.root)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println(string(result))
 }
 
 type Node struct {
-	name   string
-	layer  int
-	nodes  []*Node
+	Name   string
+	Layer  int
+	Nodes  []*Node
 	parent *Node
 }
 
@@ -72,21 +87,21 @@ type context struct {
 }
 
 func (c *context) HandleNode(new *Node) {
-
-	if c.layer < new.layer {
+	if c.layer < new.Layer {
 		new.parent = c.current
-		c.current.nodes = []*Node{}
-		c.current.nodes = append(c.current.nodes, new)
+		c.current.Nodes = []*Node{}
+		c.current.Nodes = append(c.current.Nodes, new)
 		c.current = new
-		c.layer = new.layer
+		c.layer = new.Layer
 	} else {
-		loop := c.layer - new.layer + 1
+		loop := c.layer - new.Layer + 1
 		for i := 0; i < loop; i++ {
 			c.current = c.current.parent
 		}
 		new.parent = c.current
-		c.current.nodes = append(c.current.nodes, new)
-		c.layer = new.layer
+		c.current.Nodes = append(c.current.Nodes, new)
+		c.layer = new.Layer
+		c.current = new
 	}
 }
 
