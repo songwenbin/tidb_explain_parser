@@ -55,7 +55,13 @@ func ExplainReader(t []QueryResult) {
 	var conx context = context{}
 	for _, val := range t {
 		layer := GetRowLayer(val.id)
-		n := Node{Name: val.id, Layer: layer}
+		info := Info{
+			Task:         val.task,
+			Count:        val.count,
+			Operatorinfo: val.operatorinfo,
+			Executeinfo:  val.executeinfo,
+		}
+		n := Node{Name: val.id, Layer: layer, Info: info}
 		if layer == 0 {
 			conx.layer = 0
 			n.parent = nil
@@ -73,11 +79,19 @@ func ExplainReader(t []QueryResult) {
 	fmt.Println(string(result))
 }
 
+type Info struct {
+	Task         string
+	Count        string
+	Operatorinfo string
+	Executeinfo  string
+}
+
 type Node struct {
 	Name   string
 	Layer  int
 	Nodes  []*Node
 	parent *Node
+	Info   Info
 }
 
 type context struct {
